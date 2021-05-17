@@ -27,6 +27,8 @@ public class ChunkManager : MonoBehaviour {
         var currentChunk = GetChunk(player.transform.position);
 
         List<Vector2> visibleChunks = new List<Vector2>();
+        
+        // TODO: Use quadtree
 
         // Get visible chunks
         for (int col = -chunkViewDist; col <= chunkViewDist; col++) {
