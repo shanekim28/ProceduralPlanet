@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using _Scripts;
 using UnityEngine;
 
 public class ChunkManager : MonoBehaviour {
@@ -27,6 +28,10 @@ public class ChunkManager : MonoBehaviour {
         var currentChunk = GetChunk(player.transform.position);
 
         List<Vector2> visibleChunks = new List<Vector2>();
+
+        QuadTree qt = new QuadTree(Vector2Int.zero, 512);
+        
+        qt.Insert(player.transform.position);
         
         // TODO: Use quadtree
 

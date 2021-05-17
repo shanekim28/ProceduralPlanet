@@ -3,25 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace _Scripts {
+    /// <summary>
+    /// Implementation of a quadtree datastructure
+    /// </summary>
     public class QuadTree {
         public Bounds bounds;
-        public int minNodeSize;
+        public static int minNodeSize = 64;
 
-        // Quadrant children
-        public QuadTree ne;
-        public QuadTree nw;
-        public QuadTree sw;
-        public QuadTree se;
+        // Children
+        public QuadTree ne; // Quadrant I
+        public QuadTree nw; // Quadrant II
+        public QuadTree sw; // Quadrant III
+        public QuadTree se; // Quadrant IV
 
         // Constructors
-        public QuadTree(Vector2Int min, Vector2Int max, int minNodeSize) {
+        public QuadTree(Vector2Int min, Vector2Int max) {
             bounds = new Bounds(min, max);
-            this.minNodeSize = minNodeSize;
         }
+        
 
-        public QuadTree(Vector2Int center, int halfWidth, int minNodeSize) {
+        public QuadTree(Vector2Int center, int halfWidth) {
             bounds = new Bounds(center, halfWidth);
-            this.minNodeSize = minNodeSize;
         }
 
         /// <summary>
@@ -63,26 +65,22 @@ namespace _Scripts {
             // Quadrant I
             node.ne = new QuadTree(
                 midpoint, 
-                node.bounds.max, 
-                minNodeSize
+                node.bounds.max
             );
             // Quadrant II
             node.nw = new QuadTree(
                 new Vector2Int(node.bounds.min.x, midpoint.y), 
-                new Vector2Int(midpoint.x, node.bounds.max.y),
-                minNodeSize
+                new Vector2Int(midpoint.x, node.bounds.max.y)
             );
             // Quadrant III
             node.sw = new QuadTree(
                 node.bounds.min, 
-                midpoint, 
-                minNodeSize
+                midpoint
             );
             // Quadrant IV
             node.se = new QuadTree(
                 new Vector2Int(midpoint.x, node.bounds.min.y),
-                new Vector2Int(node.bounds.max.x, midpoint.y),
-                minNodeSize
+                new Vector2Int(node.bounds.max.x, midpoint.y)
             );
         }
 
@@ -126,6 +124,11 @@ namespace _Scripts {
         public Vector2Int max;
         public int width;
 
+        /// <summary>
+        /// Constructs a Bounds with a center and half of the Bound's width
+        /// </summary>
+        /// <param name="center">Center point</param>
+        /// <param name="halfWidth">Half width</param>
         public Bounds(Vector2Int center, int halfWidth) {
             this.center = center;
             min = new Vector2Int(center.x - halfWidth, center.y - halfWidth);
@@ -133,11 +136,17 @@ namespace _Scripts {
             width = halfWidth * 2;
         }
 
+        /// <summary>
+        /// Constructs a Bounds with a min and max position (bottom-left, top-right)
+        /// </summary>
+        /// <param name="min">Axis-aligned minimum position</param>
+        /// <param name="max">Axis-aligned maximum position</param>
         public Bounds(Vector2Int min, Vector2Int max) {
             this.min = min;
             this.max = max;
 
             width = max.x - min.x;
+            // Get midpoint
             center = (min + max) / 2;
         }
     }
