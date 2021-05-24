@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public static class MeshGenerator {
-    public static MeshData GenerateMesh(float[,] heightMap, float heightFactor, int resolution) {
+    public static MeshData GenerateMesh(float[,] heightMap, float heightFactor, int chunkSize) {
         // Dimensions of mesh
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
@@ -15,7 +15,7 @@ public static class MeshGenerator {
         MeshData meshData = new MeshData(width, height);
         int vertexIndex = 0;
         
-        int resStep = (width - 1) / resolution;
+        int resStep = (width - 1) / chunkSize;
         int verticesPerLine = (width - 1) / resStep + 1;
 
         for (int col = 0; col < height; col += resStep) {

@@ -45,13 +45,13 @@ namespace _Scripts {
             // If object is within bounds and the nodes are big enough
             if (distToChild < node.bounds.width && node.bounds.width > minNodeSize) {
                 // Create children
-                CreateChildren(this);
+                CreateChildren(node);
                 
                 // Recurse
-                Insert(ne, position);
-                Insert(nw, position);
-                Insert(sw, position);
-                Insert(se, position);
+                Insert(node.ne, position);
+                Insert(node.nw, position);
+                Insert(node.sw, position);
+                Insert(node.se, position);
             }
         }
 
@@ -82,6 +82,27 @@ namespace _Scripts {
                 new Vector2Int(midpoint.x, node.bounds.min.y),
                 new Vector2Int(node.bounds.max.x, midpoint.y)
             );
+        }
+
+        public Dictionary<Vector2Int, QuadTree> GetChildNodes() {
+            var children = new Dictionary<Vector2Int, QuadTree>();
+            GetChildren(this, children);
+            return children;
+        }
+
+        private void GetChildren(QuadTree node, Dictionary<Vector2Int, QuadTree> children) {
+            if (node == null) return;
+
+            // If this node is leaf node, add to list
+            if (node.ne == null && node.nw == null && node.sw == null && node.se == null) {
+                children.Add(node.bounds.center, node);
+            }
+
+            // Recurse
+            GetChildren(node.ne, children);
+            GetChildren(node.nw, children);
+            GetChildren(node.sw, children);
+            GetChildren(node.se, children);
         }
 
         /// <summary>
