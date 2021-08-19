@@ -16,6 +16,8 @@ public class ChunkManager : MonoBehaviour {
     public int chunkResolution = 64;
     
     private Dictionary<Vector2Int, Chunk> chunks = new Dictionary<Vector2Int, Chunk>();
+
+    private Dictionary<Vector2Int, Chunk> chunkPool = new Dictionary<Vector2Int, Chunk>();
     
     // Start is called before the first frame update
     void Start() {
@@ -39,8 +41,13 @@ public class ChunkManager : MonoBehaviour {
         // Old, non-visible chunks
         var oldChunks = chunks.Keys.Except(visibleChunks.Keys);
 
-        // TODO: Object pool
         foreach (var oldChunk in oldChunks) {
+            // Add old chunk to object pool
+            if (!chunkPool.ContainsKey(oldChunk)) {
+                chunkPool.Add(oldChunk, chunks[oldChunk]);
+            }
+
+            // Delete chunk
             Destroy(chunks[oldChunk].meshObject);
         }
 
@@ -51,8 +58,17 @@ public class ChunkManager : MonoBehaviour {
         
         // Generate new chunks
         foreach (var chunkKey in newChunks) {
-            // Generate chunk with size and resolution
-            updatedChunks.Add(chunkKey, GenerateChunk(chunkKey, visibleChunks[chunkKey].bounds.width));
+            // If object pool contains the chunk
+            if (chunkPool.ContainsKey(chunkKey)) {
+                var pooledChunk = chunkPool[chunkKey];
+                
+                // Re-instantiate the chunk
+                updatedChunks.Add(chunkKey, pooledChunk);
+                pooledChunk.DisplayChunk(meshMaterial);
+            } else {
+                // Generate chunk with size and resolution
+                updatedChunks.Add(chunkKey, GenerateChunk(chunkKey, visibleChunks[chunkKey].bounds.width));
+            }
         }
 
         chunks = updatedChunks;
@@ -87,23 +103,28 @@ public class ChunkManager : MonoBehaviour {
 
         private MeshFilter meshFilter;
         private MeshRenderer meshRenderer;
-        private MeshData meshData;
+        public MeshData meshData;
 
         public Chunk(Vector2 position, MeshData meshData, int chunkSize, Material meshMaterial) {
             this.meshData = meshData;
             this.position = position;
             this.meshData = meshData;
+            
+            DisplayChunk(meshMaterial);
+        }
+
+        public void DisplayChunk(Material meshMaterial) {
             Vector3 posv3 = new Vector3(this.position.x, 0, this.position.y);
 
             meshObject = new GameObject($"Chunk {position.x} {position.y}");
             meshFilter = meshObject.AddComponent<MeshFilter>();
             meshRenderer = meshObject.AddComponent<MeshRenderer>();
-            
+
             // TODO: Multithread this
             meshFilter.sharedMesh = meshData.CreateMesh();
             meshRenderer.sharedMaterial = meshMaterial;
             // TODO: Set texture
-            
+
             meshObject.transform.position = posv3;
         }
 
