@@ -67,7 +67,9 @@ public class ChunkManager : MonoBehaviour {
                 pooledChunk.DisplayChunk(meshMaterial);
             } else {
                 // Generate chunk with size and resolution
-                updatedChunks.Add(chunkKey, GenerateChunk(chunkKey, visibleChunks[chunkKey].bounds.width));
+                var chunk = GenerateChunk(chunkKey, visibleChunks[chunkKey].bounds.width);
+                updatedChunks.Add(chunkKey, chunk);
+                chunk.DisplayChunk(meshMaterial);
             }
         }
 
@@ -86,8 +88,8 @@ public class ChunkManager : MonoBehaviour {
         var heightMap = mapGenerator.GenerateMap(size, chunkKey);
         // Generate mesh for chunk
         var meshData = MeshGenerator.GenerateMesh(heightMap, mapGenerator.heightMultiplier, QuadTree.minNodeSize);
-        
-        return new Chunk(chunkKey, meshData, chunkSize, meshMaterial);
+
+        return new Chunk(chunkKey, meshData);
     }
     
     private Vector2 GetChunk(Vector3 position) {
@@ -97,7 +99,7 @@ public class ChunkManager : MonoBehaviour {
         return new Vector2(chunkX, chunkZ);
     }
 
-    class Chunk {
+    public class Chunk {
         public GameObject meshObject;
         Vector2 position;
 
@@ -105,12 +107,10 @@ public class ChunkManager : MonoBehaviour {
         private MeshRenderer meshRenderer;
         public MeshData meshData;
 
-        public Chunk(Vector2 position, MeshData meshData, int chunkSize, Material meshMaterial) {
+        public Chunk(Vector2 position, MeshData meshData) {
             this.meshData = meshData;
             this.position = position;
             this.meshData = meshData;
-            
-            DisplayChunk(meshMaterial);
         }
 
         public void DisplayChunk(Material meshMaterial) {

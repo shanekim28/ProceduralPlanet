@@ -64,10 +64,7 @@ public class MeshData {
     }
 
     public Mesh CreateMesh() {
-        Mesh mesh = new Mesh();
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-        mesh.uv = uvs;
+        Mesh mesh = new Mesh { vertices = vertices, triangles = triangles, uv = uvs };
         mesh.RecalculateNormals();
 
         return mesh;

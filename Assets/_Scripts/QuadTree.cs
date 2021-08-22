@@ -20,7 +20,6 @@ namespace _Scripts {
         public QuadTree(Vector2Int min, Vector2Int max) {
             bounds = new Bounds(min, max);
         }
-        
 
         public QuadTree(Vector2Int center, int halfWidth) {
             bounds = new Bounds(center, halfWidth);
@@ -39,7 +38,7 @@ namespace _Scripts {
         /// </summary>
         /// <param name="node">Root node</param>
         /// <param name="position">Position to insert</param>
-        private void Insert(QuadTree node, Vector2 position) {
+        private static void Insert(QuadTree node, Vector2 position) {
             var distToChild = Vector2.Distance(node.bounds.center, position);
             
             // If object is within bounds and the nodes are big enough
@@ -56,10 +55,10 @@ namespace _Scripts {
         }
 
         /// <summary>
-        /// Creates new children for this
+        /// Creates new children for this node
         /// </summary>
         /// <param name="node"></param>
-        private void CreateChildren(QuadTree node) {
+        private static void CreateChildren(QuadTree node) {
             var midpoint = node.bounds.center;
 
             // Quadrant I
@@ -120,7 +119,7 @@ namespace _Scripts {
         /// </summary>
         /// <param name="node">Root node</param>
         /// <param name="children">List to be modified</param>
-        private void GetChildren(QuadTree node, List<Vector2Int> children) {
+        private static void GetChildren(QuadTree node, List<Vector2Int> children) {
             if (node == null) return;
             
             // If this node is leaf node, add to list

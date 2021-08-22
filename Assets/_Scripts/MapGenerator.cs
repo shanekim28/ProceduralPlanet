@@ -22,6 +22,7 @@ public class MapGenerator : MonoBehaviour {
     }
 
     public void DisplayMap(float[,] noiseMap, Vector2 offset) {
+        display.DrawNoiseMap(noiseMap);
     }
 
     private void OnValidate() {
