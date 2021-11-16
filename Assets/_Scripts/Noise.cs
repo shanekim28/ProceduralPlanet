@@ -3,11 +3,75 @@ using System.Collections;
 using System.Collections.Generic;
 using SimplexNoise;
 using UnityEngine;
+using Random = System.Random;
 
 public static class Noise {
+    public static float[,] GenerateBaseMap(int mapWidth, int mapHeight, Vector2 offset, float tileSize) {
+        float[,] baseMap = new float[mapWidth, mapHeight];
+
+        // Loop through each pixel in current map
+        for (int col = 0; col < mapHeight; col++) {
+            for (int row = 0; row < mapWidth; row++) {
+                // Get pixel's nearest tile
+                var nearestTile = new Vector2(Mathf.Floor((offset.x + row) / tileSize), Mathf.Floor((offset.y + col) / tileSize));
+                var currentPixel = offset + new Vector2(row, col) - nearestTile * tileSize;
+                
+                float minDist = float.MaxValue;
+
+                // Get surrounding tiles
+                for (int y = -1; y <= 1; y++) {
+                    for (int x = -1; x <= 1; x++) {
+                        // Get tile's random hash
+                        var neighborTile = nearestTile + new Vector2(x, y) * tileSize; 
+                        var cellCenter = RandomVector(neighborTile);
+
+                        // Distance between current pixel and neighboring cell's hash
+                        var dist = Vector2.Distance(currentPixel, cellCenter) / mapWidth;
+                        // Update min distance
+                        minDist = Mathf.Min(dist, minDist);
+                    }
+                }
+
+                baseMap[row, col] += minDist;
+            }
+        }
+
+        // Declare min dist
+        // For each surrounding tile
+            // Get neighbor index
+            // Hash tile to get pseudorandom offset
+            // difference = neighbor + random - current pixel
+            // distance = x * x + y * y
+            // Store min distance
+        // Set basemap color
+
+        /*        
+        var rp = RandomVector(new Vector2(32, 32)) * mapWidth;
+        Debug.Log(rp);
+        float halfWidth = mapWidth / 2f;
+        float halfHeight = mapHeight / 2f;
+        
+        for (int col = 0; col < mapHeight; col++) {
+            for (int row = 0; row < mapWidth; row++) {
+                float minDist = float.MaxValue;
+                
+                var sampleX = row - halfWidth + offset.x;
+                var sampleY = col - halfHeight - offset.y;
+                
+                var dist = Vector2.Distance(rp, new Vector2(sampleX, sampleY));
+                minDist = Mathf.Min(minDist, dist / mapWidth);
+
+                baseMap[row, col] += minDist;
+            }
+        }
+        
+        */
+
+        return baseMap;
+    }
+    
     public static float[,] GenerateNoiseMap(int mapWidth, int mapHeight, Vector2 offset, float scale, int octaves, float 
-    persistence,
-     float lacunarity, float multiplier, int seed) {
+    persistence, float lacunarity, float multiplier, int seed) {
         float[,] noiseMap = new float[mapWidth, mapHeight];
 
         OpenSimplexNoise simplexNoise = new OpenSimplexNoise(seed);
@@ -67,5 +131,19 @@ public static class Noise {
         }
 
         return noiseMap;
+    }
+
+    /// <summary>
+    /// Generates a pseudorandom 2D vector based on a 2D vector seed between 0 and 1
+    /// </summary>
+    /// <param name="seed"></param>
+    /// <returns></returns>
+    private static Vector2 RandomVector(Vector2 seed) {
+        seed = new Vector2(
+                           Vector2.Dot(seed, new Vector2(127.1f, 311.7f)),
+                           Vector2.Dot(seed, new Vector2(269.5f, 183.3f))
+                           );
+        var x = new Vector2(Mathf.Sin(seed.x), Mathf.Sin(seed.y));
+        return new Vector2(x.x - Mathf.Floor(x.x), x.y - Mathf.Floor(x.y));
     }
 }

@@ -18,6 +18,14 @@ public class MapGeneratorEditor : Editor {
         DrawDefaultInspector();
 
         if (GUILayout.Button("Generate")) {
+            var x = mapGen.GenerateMap(64, Vector2.zero);
+            var y = MeshGenerator.GenerateMesh(x, 1, 64);
+            mapGen.display.DrawMesh(y);
+            mapGen.DisplayMap(x, Vector2.zero);
+        }
+
+        /*
+        if (GUILayout.Button("Generate")) {
             foreach (var chunk in chunks) {
                 DestroyImmediate(chunk);
             }
@@ -38,6 +46,6 @@ public class MapGeneratorEditor : Editor {
                 
                 chunks.Add(chunk.meshObject);
             }
-        }
+        }*/
     }
 }

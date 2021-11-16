@@ -17,8 +17,12 @@ public class MapGenerator : MonoBehaviour {
     public bool autoGenerate = false;
 
     public float[,] GenerateMap(int chunkSize, Vector2 offset) {
+        /*
         return Noise.GenerateNoiseMap(chunkSize + 1, chunkSize + 1, offset, noiseScale, octaves, 
         persistence, lacunarity, multiplier, seed);
+        */
+
+        return Noise.GenerateBaseMap(chunkSize + 1, chunkSize + 1, offset, 128);
     }
 
     public void DisplayMap(float[,] noiseMap, Vector2 offset) {
