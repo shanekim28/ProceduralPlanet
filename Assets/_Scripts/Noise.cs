@@ -14,25 +14,12 @@ public static class Noise {
             for (int row = 0; row < mapWidth; row++) {
                 // Get pixel's nearest tile
                 var nearestTile = new Vector2(Mathf.Floor((offset.x + row) / tileSize), Mathf.Floor((offset.y + col) / tileSize));
-                var currentPixel = offset + new Vector2(row, col) - nearestTile * tileSize;
-                
-                float minDist = float.MaxValue;
+                var center = RandomVector(nearestTile);
+                var pixelPosInTile = new Vector2((offset.x + row) / tileSize, (offset.y + col) / tileSize) - nearestTile;
 
-                // Get surrounding tiles
-                for (int y = -1; y <= 1; y++) {
-                    for (int x = -1; x <= 1; x++) {
-                        // Get tile's random hash
-                        var neighborTile = nearestTile + new Vector2(x, y) * tileSize; 
-                        var cellCenter = RandomVector(neighborTile);
+                var diff = center - pixelPosInTile;
 
-                        // Distance between current pixel and neighboring cell's hash
-                        var dist = Vector2.Distance(currentPixel, cellCenter) / mapWidth;
-                        // Update min distance
-                        minDist = Mathf.Min(dist, minDist);
-                    }
-                }
-
-                baseMap[row, col] += minDist;
+                baseMap[row, col] = 1 - diff.magnitude;
             }
         }
 

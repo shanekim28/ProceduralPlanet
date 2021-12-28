@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// TODO: Non-variable chunk size
 public static class MeshGenerator {
+    // Add LOD factor
     public static MeshData GenerateMesh(float[,] heightMap, float heightFactor, int chunkSize) {
         // Dimensions of mesh
         int width = heightMap.GetLength(0);
