@@ -18,34 +18,10 @@ public class MapGeneratorEditor : Editor {
         DrawDefaultInspector();
 
         if (GUILayout.Button("Generate")) {
-            var x = mapGen.GenerateMap(64, Vector2.zero);
-            var y = MeshGenerator.GenerateMesh(x, 1, 64);
+            var x = mapGen.GenerateMap(32, new Vector2(64, 0),  32);
+            var y = MeshGenerator.GenerateMesh(x, 1, 32);
             mapGen.display.DrawMesh(y);
             mapGen.DisplayMap(x, Vector2.zero);
         }
-
-        /*
-        if (GUILayout.Button("Generate")) {
-            foreach (var chunk in chunks) {
-                DestroyImmediate(chunk);
-            }
-            chunks.Clear();
-            
-            // Create quadtree
-            QuadTree qt = new QuadTree(Vector2Int.zero, 512);
-            // Insert player into quadtree
-            qt.Insert(Vector2.zero);
-
-            // Generate new chunks
-            foreach (var node in qt.GetChildNodes()) {
-                // Generate chunk with size and resolution
-                var map = mapGen.GenerateMap(node.Value.bounds.width, node.Key);
-                var meshData = MeshGenerator.GenerateMesh(map, mapGen.heightMultiplier, 64);
-                var chunk = new Chunk(node.Key, meshData);
-                chunk.DisplayChunk(mapGen.display.meshRenderer.sharedMaterial);
-                
-                chunks.Add(chunk.meshObject);
-            }
-        }*/
     }
 }

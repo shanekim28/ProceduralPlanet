@@ -11,18 +11,27 @@ public class MapGenerator : MonoBehaviour {
     public float lacunarity;
     public float heightMultiplier;
     public float multiplier = 1;
+    public float ridgeMultiplier = 1;
     public int seed;
 
     [Space(10)]
     public bool autoGenerate = false;
 
-    public float[,] GenerateMap(int chunkSize, Vector2 offset) {
-        /*
-        return Noise.GenerateNoiseMap(chunkSize + 1, chunkSize + 1, offset, noiseScale, octaves, 
+    public float[,] GenerateMap(int chunkSize, Vector2 offset, int tileSize) {
+        var baseMap = Noise.GenerateBaseMap(chunkSize + 1, chunkSize + 1, offset, ridgeMultiplier, tileSize);
+        var noiseMap = Noise.GenerateNoiseMap(chunkSize + 1, chunkSize + 1, offset, noiseScale, octaves, 
         persistence, lacunarity, multiplier, seed);
-        */
 
-        return Noise.GenerateBaseMap(chunkSize + 1, chunkSize + 1, offset, 128);
+        float[,] res = new float[chunkSize + 1, chunkSize + 1];
+        for (int i= 0; i< chunkSize + 1; i++) {
+            for (int j = 0; j < chunkSize + 1; j++) {
+                res[j,i] = baseMap[j, i] + noiseMap[j,i];
+                //res[j, i] = noiseMap[j, i];
+                //res[j, i] = baseMap[j, i];
+            }
+        }
+
+        return res;
     }
 
     public void DisplayMap(float[,] noiseMap, Vector2 offset) {

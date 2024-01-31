@@ -13,6 +13,7 @@ public class ChunkManager : MonoBehaviour {
 
     public int chunkViewDist = 3;
     public int chunkSize = 64;
+    public int tileSize = 33;
     public int chunkResolution = 64;
     
     private Dictionary<Vector2Int, Chunk> chunks = new Dictionary<Vector2Int, Chunk>();
@@ -26,54 +27,21 @@ public class ChunkManager : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        // Create quadtree
-        QuadTree qt = new QuadTree(Vector2Int.zero, 512);
-        // Insert player into quadtree
-        qt.Insert(new Vector2(player.transform.position.x, player.transform.position.z));
+        var playerPos = player.transform.position;
+        var playerChunkPos = new Vector2Int(Mathf.RoundToInt(playerPos.x / chunkSize), 
+                                            Mathf.RoundToInt(playerPos.z / chunkSize));
 
-        var updatedChunks = new Dictionary<Vector2Int, Chunk>();
-        // Get all visible chunks
-        var visibleChunks = qt.GetChildNodes();
-        
-        // Set intersection of current chunks and visible chunks
-        var existingChunks = chunks.Keys.Intersect(visibleChunks.Keys);
-        var newChunks = visibleChunks.Keys.Except(chunks.Keys);
-        // Old, non-visible chunks
-        var oldChunks = chunks.Keys.Except(visibleChunks.Keys);
+        // TODO: Chunk pool
+        for (int i = -chunkViewDist; i <= chunkViewDist; i++) {
+            for (int j = -chunkViewDist; j <= chunkViewDist; j++) {
+                var offset = new Vector2Int(i, j);
+                if (chunks.ContainsKey(playerChunkPos + offset)) continue;
 
-        foreach (var oldChunk in oldChunks) {
-            // Add old chunk to object pool
-            if (!chunkPool.ContainsKey(oldChunk)) {
-                chunkPool.Add(oldChunk, chunks[oldChunk]);
-            }
-
-            // Delete chunk
-            Destroy(chunks[oldChunk].meshObject);
-        }
-
-        // Start off with chunks we already have
-        foreach (var chunkKey in existingChunks) {
-            updatedChunks.Add(chunkKey, chunks[chunkKey]);
-        }
-        
-        // Generate new chunks
-        foreach (var chunkKey in newChunks) {
-            // If object pool contains the chunk
-            if (chunkPool.ContainsKey(chunkKey)) {
-                var pooledChunk = chunkPool[chunkKey];
-                
-                // Re-instantiate the chunk
-                updatedChunks.Add(chunkKey, pooledChunk);
-                pooledChunk.DisplayChunk(meshMaterial);
-            } else {
-                // Generate chunk with size and resolution
-                var chunk = GenerateChunk(chunkKey, visibleChunks[chunkKey].bounds.width);
-                updatedChunks.Add(chunkKey, chunk);
+                var chunk = GenerateChunk(playerChunkPos + offset, chunkSize);
                 chunk.DisplayChunk(meshMaterial);
+                chunks.Add(playerChunkPos + offset, chunk);
             }
         }
-
-        chunks = updatedChunks;
     }
 
     /// <summary>
@@ -85,11 +53,11 @@ public class ChunkManager : MonoBehaviour {
     private Chunk GenerateChunk(Vector2 chunkKey, int size) {
         // TODO: Variable chunk resolution based on chunk size
         // Generate heightmap for chunk
-        var heightMap = mapGenerator.GenerateMap(size, chunkKey);
+        var heightMap = mapGenerator.GenerateMap(size, Vector2.Scale(chunkKey * size, new Vector2(1, -1)), tileSize);
         // Generate mesh for chunk
-        var meshData = MeshGenerator.GenerateMesh(heightMap, mapGenerator.heightMultiplier, QuadTree.minNodeSize);
+        var meshData = MeshGenerator.GenerateMesh(heightMap, mapGenerator.heightMultiplier, chunkSize);
 
-        return new Chunk(chunkKey, meshData);
+        return new Chunk(chunkKey * size, meshData);
     }
     
     private Vector2 GetChunk(Vector3 position) {
