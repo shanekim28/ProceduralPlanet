@@ -5,6 +5,8 @@ using UnityEngine;
 public static class Noise {
     public static float[,] GenerateBaseMap(int mapWidth, int mapHeight, Vector2 offset, float multiplier, int tileSize) {
         float[,] baseMap = new float[mapWidth, mapHeight];
+        if (multiplier == 0) return baseMap;
+                
         var dict = new Dictionary<Vector2, Vector2>();
         
         // Loop through each pixel in current map
@@ -23,12 +25,12 @@ public static class Noise {
                 // For each surrounding tile
                 for (int i = -1; i <= 1; i++) {
                     for (int j = -1; j <= 1; j++) {
+
                         // Get neighbor index
                         // Hash tile to get pseudorandom offset
                         var neighbor = VectorUtils.VectorHash(nearestTile + new Vector2Int(j, i));
                         if (!dict.ContainsKey(nearestTile + new Vector2Int(j, i))) {
                             dict.Add(nearestTile + new Vector2Int(j, i), neighbor);
-                            Debug.Log($"Tile {nearestTile + new Vector2Int(j, i)}: {neighbor}");
                         }
 
                         var diff = new Vector2Int(j, i) + neighbor - pixelPosInTile;
@@ -99,7 +101,7 @@ public static class Noise {
         for (int col = 0; col < mapHeight; col++) {
             for (int row = 0; row < mapWidth; row++) {
                 float normalizedHeight = (noiseMap[row, col] + 1) / (2f * maxNoiseHeight);
-                noiseMap[row, col] = Mathf.Pow(normalizedHeight, multiplier);
+                noiseMap[row, col] = normalizedHeight * multiplier;
             }
         }
 
